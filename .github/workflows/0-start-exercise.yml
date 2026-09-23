@@ -1,0 +1,92 @@
+name: Step 0 # Start Exercise
+
+on:
+  push:
+    branches:
+      - main
+  # 保險機制:如果 issue 沒有自動出現,可以到 Actions 頁籤手動執行這支 workflow
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+env:
+  STEP_1_FILE: ".github/steps/1-step.md"
+
+jobs:
+  start_exercise:
+    # 在 template repo 本身不執行,只有學員複製出去的 repo 才會跑
+    if: |
+      !github.event.repository.is_template
+    name: Start Exercise
+    uses: skills/exercise-toolkit/.github/workflows/start-exercise.yml@v0.9.3
+    with:
+      exercise-title: "GitHub Copilot 實戰工作坊:Agent Mode × MCP × Agentic Workflows"
+      intro-message: |
+        "歡迎來到 GitHub Copilot 實戰工作坊!👋\n
+        \n
+        接下來的 120 分鐘,你會親手完成三件事:\n
+        1. **Agent Mode** — 用一段提示詞讓 AI 從零建出一個待辦清單網頁 App\n
+        2. **MCP Integration** — 讓 AI 能查 Microsoft 官方文件、讀你自己的 GitHub issue\n
+        3. **Agentic Workflows** — 寫一份劇本,讓 AI 自動讀 issue → 修好 → 開 PR\n
+        \n
+        > 🟢 不需要程式基礎,每一步都有可直接複製的提示詞與指令\n
+        > 🟢 GitHub Copilot **免費版**就能完成\n
+        > 🟢 做壞了隨時可以還原,我們有一整關在教這件事\n
+        \n
+        **開始之前請先看這幾份文件:**\n
+        - 📅 [議程與配速](https://github.com/${{ github.repository }}/blob/main/AGENDA.md)\n
+        - ⚙️ [環境檢查清單](https://github.com/${{ github.repository }}/blob/main/docs/00-setup.md)\n
+        - 🔄 [還原指南(做壞了怎麼救)](https://github.com/${{ github.repository }}/blob/main/docs/rollback.md)\n
+        - 🆘 [疑難排解](https://github.com/${{ github.repository }}/blob/main/docs/troubleshooting.md)\n
+        - 📦 [解答區(卡關或額度用完時用)](https://github.com/${{ github.repository }}/blob/main/solutions/README.md)\n
+        \n
+        **第一件事:把這個 repo clone 到你的電腦上,並用 VS Code 打開。**\n
+        \n
+        ```\n
+        git clone https://github.com/${{ github.repository }}.git\n
+        ```\n
+        \n
+        準備好了就往下看 Step 1 吧!🚀"
+
+  post_next_step_content:
+    name: Post next step content
+    runs-on: ubuntu-latest
+    needs: [start_exercise]
+    env:
+      ISSUE_NUMBER: ${{ needs.start_exercise.outputs.issue-number }}
+      ISSUE_REPOSITORY: ${{ github.repository }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.9.3
+
+      - name: Create comment - add step content
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          file: ${{ env.STEP_1_FILE }}
+          vars: |
+            full_repo_name: ${{ github.repository }}
+
+      - name: Create comment - watching for progress
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          file: exercise-toolkit/markdown-templates/step-feedback/watching-for-progress.md
+
+      - name: Enable next step workflow
+        run: gh workflow enable "Step 1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

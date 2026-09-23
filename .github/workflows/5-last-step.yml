@@ -1,0 +1,196 @@
+name: Step 5 # Last step of the exercise
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'PORTFOLIO.md'
+  # 保險機制:卡關時可以到 Actions 頁籤手動執行這支 workflow 強制推進
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+env:
+  REVIEW_FILE: ".github/steps/x-review.md"
+
+jobs:
+  find_exercise:
+    name: Find Exercise Issue
+    uses: skills/exercise-toolkit/.github/workflows/find-exercise-issue.yml@v0.9.3
+
+  check_step_work:
+    name: Check step work
+    needs: [find_exercise]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.9.3
+
+      - name: Find last comment
+        id: find-last-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          direction: last
+
+      - name: Update comment - checking work
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
+          file: exercise-toolkit/markdown-templates/step-feedback/checking-work.md
+          edit-mode: replace
+
+      # START: 檢查這一關的產出
+
+      - name: Check if PORTFOLIO.md exists
+        id: check-portfolio
+        continue-on-error: true
+        uses: skills/exercise-toolkit/actions/file-exists@v0.9.3
+        with:
+          file: 'PORTFOLIO.md'
+
+      - name: Update comment - step results
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
+          edit-mode: replace
+          file: exercise-toolkit/markdown-templates/step-feedback/step-results-table.md
+          vars: |
+            step_number: 5
+            results_table:
+              - description: "建立了 PORTFOLIO.md 作品集"
+                passed: ${{ steps.check-portfolio.outcome == 'success' }}
+
+      # END: 檢查這一關的產出
+
+      # 手動觸發(workflow_dispatch)時不擋關,讓卡住的學員能強制推進
+      - name: Fail job if not all checks passed
+        if: github.event_name != 'workflow_dispatch' && contains(steps.*.outcome, 'failure')
+        run: exit 1
+
+  report_achievements:
+    name: Report repo stats for badges
+    needs: [find_exercise, check_step_work]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+
+    steps:
+      - name: Summarise merged PRs, Pages and visibility
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+
+            const { data: repoInfo } = await github.rest.repos.get({ owner, repo });
+            const isPublic = !repoInfo.private;
+
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'closed', per_page: 100,
+            });
+            const merged = prs.filter((pr) => pr.merged_at);
+            const mergedToMain = merged.filter((pr) => pr.base.ref === repoInfo.default_branch);
+
+            let pagesUrl = null;
+            try {
+              const { data: pages } = await github.rest.repos.getPages({ owner, repo });
+              pagesUrl = pages.html_url;
+            } catch (error) {
+              // Pages 尚未啟用,屬於正常情況
+            }
+
+            const tick = (ok) => (ok ? '✅' : '⬜');
+            const yolo = mergedToMain.length >= 1 && isPublic;
+            const pullShark = mergedToMain.length >= 2 && isPublic;
+
+            const lines = [
+              '## 🏅 徽章條件檢查',
+              '',
+              '這是系統幫你檢查的結果,對照 [徽章指南](https://github.com/' + owner + '/' + repo + '/blob/main/docs/badges.md) 看還差什麼。',
+              '',
+              '| 項目 | 狀態 | 說明 |',
+              '| :--- | :---: | :--- |',
+              '| repo 是公開的 | ' + tick(isPublic) + ' | GitHub Achievements **只計算公開 repo**,私有 repo 不算 |',
+              '| 已合併進 `' + repoInfo.default_branch + '` 的 PR | ' + tick(mergedToMain.length >= 1) + ' | 目前 **' + mergedToMain.length + '** 個 |',
+              '| **YOLO** 徽章條件 | ' + tick(yolo) + ' | 需要:公開 repo + 至少 1 個自行合併(未經他人審查)的 PR |',
+              '| **Pull Shark** 徽章條件 | ' + tick(pullShark) + ' | 需要:公開 repo + 至少 2 個已合併的 PR |',
+              '| GitHub Pages 已啟用 | ' + tick(Boolean(pagesUrl)) + ' | ' + (pagesUrl ? '你的作品網址:' + pagesUrl : '尚未啟用,見 Step 5 的說明') + ' |',
+              '',
+              '> ⚠️ 徽章不會即時出現,通常需要數分鐘到數小時。',
+              '> 也請確認 [個人設定](https://github.com/settings/profile) 裡的 **Show Achievements on my profile** 有勾選。',
+            ];
+
+            await github.rest.issues.createComment({
+              owner, repo,
+              issue_number: Number(process.env.ISSUE_NUMBER),
+              body: lines.join('\n'),
+            });
+
+  post_review_content:
+    name: Post review content
+    needs: [find_exercise, check_step_work, report_achievements]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.9.3
+
+      - name: Create comment - step finished - final review next
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          file: exercise-toolkit/markdown-templates/step-feedback/lesson-review.md
+
+      - name: Create comment - add review content
+        uses: GrantBirki/comment@v2.1.1
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          file: ${{ env.REVIEW_FILE }}
+          vars: |
+            full_repo_name: ${{ github.repository }}
+
+      - name: Disable current workflow
+        run: gh workflow disable "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  finish_exercise:
+    name: Finish Exercise
+    needs: [find_exercise, post_review_content]
+    uses: skills/exercise-toolkit/.github/workflows/finish-exercise.yml@v0.9.3
+    with:
+      issue-url: ${{ needs.find_exercise.outputs.issue-url }}
+      exercise-title: "GitHub Copilot 實戰工作坊:Agent Mode × MCP × Agentic Workflows"

@@ -1,0 +1,284 @@
+name: 🏅 工作坊完成登記
+description: 完成工作坊後填寫,用於發放官方認證徽章與成果彙整
+title: "[完成登記] "
+labels: ["completion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 恭喜完成工作坊!🎉
+
+        這份登記表大約需要 **2 分鐘**,用途有三:
+
+        1. **發放官方認證徽章** —— 我們依這份名單發送
+        2. **彙整學員成果** —— 讓你的作品被看見
+        3. **改進課程** —— 你的回饋會直接影響下一場
+
+        > ⚠️ **請確認你是在主辦方的 repo 填寫這份表單。**
+        > 如果你是在自己的練習 repo 看到它(範本會跟著複製過去),請改到 [主辦方的登記處](https://github.com/matsurigoto/copilot-workshop-agent-mode-mcp/issues/new?template=workshop-completion.yml&labels=completion) 填寫,否則主辦方收不到。
+
+        > 🔒 送出後這則 issue 會是公開的。**請勿填寫任何你不希望公開的個人資訊**(例如身分證字號、手機、私人信箱)。
+        > 若你不希望作品被公開展示,最後一題不要勾選即可。
+
+  - type: markdown
+    attributes:
+      value: "---\n### 一、基本資料"
+
+  - type: input
+    id: display-name
+    attributes:
+      label: 姓名或暱稱
+      description: 徽章與成果牆上會顯示的名稱
+      placeholder: 王小明
+    validations:
+      required: true
+
+  - type: input
+    id: github-handle
+    attributes:
+      label: 你的 GitHub 帳號
+      description: 只要帳號名稱,不用完整網址。**徽章會發到這個帳號**
+      placeholder: xiaoming-wang
+    validations:
+      required: true
+
+  - type: input
+    id: org-unit
+    attributes:
+      label: 單位 / 部門
+      placeholder: 產品開發部
+    validations:
+      required: false
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: 你的角色
+      options:
+        - 軟體工程師
+        - 測試 / QA
+        - 資料 / AI 相關
+        - 產品經理 / 專案管理
+        - 設計
+        - IT / 維運
+        - 主管
+        - 學生
+        - 其他
+    validations:
+      required: false
+
+  - type: dropdown
+    id: coding-experience
+    attributes:
+      label: 你的程式經驗
+      options:
+        - 完全沒有
+        - 1 年以內
+        - 1 – 3 年
+        - 3 – 5 年
+        - 5 年以上
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n### 二、你的作品"
+
+  - type: input
+    id: repo-url
+    attributes:
+      label: 你的作品 repo 網址
+      description: 就是你今天做練習的那個 repo
+      placeholder: https://github.com/你的帳號/你的repo名稱
+    validations:
+      required: true
+
+  - type: input
+    id: pages-url
+    attributes:
+      label: GitHub Pages 作品網址
+      description: Step 5 開啟 Pages 後拿到的公開網址(沒開啟就留空)
+      placeholder: https://你的帳號.github.io/你的repo名稱/
+    validations:
+      required: false
+
+  - type: dropdown
+    id: completed-step
+    attributes:
+      label: 你完成到第幾關?
+      options:
+        - Step 5(全部完成)
+        - Step 4(Agentic Workflow)
+        - Step 3(MCP 整合)
+        - Step 2(Agent Mode 進階)
+        - Step 1(Agent Mode 初體驗)
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### 三、五題測驗
+
+        憑印象作答就好,**這不是考試**,是幫我們了解哪些觀念需要講得更清楚。
+        送出後你會在練習 issue 裡看到完整解析。
+
+  - type: dropdown
+    id: q1
+    attributes:
+      label: "Q1. Agent Mode 與 Ask / Plan 模式最大的差別是什麼?"
+      options:
+        - A. Agent Mode 只是回答速度比較快
+        - B. Agent Mode 一次只能修改一個檔案
+        - C. 能自行決定要開啟與修改哪些檔案、執行終端機指令,並依結果自我修正
+        - D. Agent Mode 必須付費才能使用
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q2
+    attributes:
+      label: "Q2. 關於 MCP,下列敘述何者正確?"
+      options:
+        - A. MCP 是一種新的程式語言
+        - B. 是開放協定,讓 AI 連接外部工具與資料源;VS Code 用 .vscode/mcp.json 設定
+        - C. MCP 只能在 GitHub 網站上使用
+        - D. 每個 MCP Server 都必須付費並申請 API 金鑰
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q3
+    attributes:
+      label: "Q3. Agent 改壞了程式且尚未 commit,最快的還原方式是?"
+      options:
+        - A. 使用 Chat 的 Restore Checkpoint,或執行 git restore .
+        - B. 重新 git clone 整個 repo
+        - C. 只能一行一行手動改回來
+        - D. 關掉 VS Code 重開,變更會自動消失
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q4
+    attributes:
+      label: "Q4. 下列哪一項最能描述 Agentic Workflow?"
+      options:
+        - A. 在聊天視窗裡問一個問題並得到答案
+        - B. 把多步驟可重複的工作寫成檔案存進 repo,讓 agent 重複執行並串接 MCP
+        - C. 用 Copilot 自動補完你正在打的那一行程式碼
+        - D. 在 GitHub 網站上手動建立一個 Pull Request
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q5
+    attributes:
+      label: "Q5. 使用 Copilot 免費版做這類實作,何者最合適?"
+      options:
+        - A. 每個小改動都開一次新的 agent 對話
+        - B. 一律切換到最貴、最強的模型
+        - C. 免費版不支援 Agent Mode,只能看講師示範
+        - D. 把需求一次描述完整以減少回合數;額度不足時用 solutions 對照完成
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "---\n### 四、課程回饋"
+
+  - type: dropdown
+    id: copilot-plan
+    attributes:
+      label: 你今天用的 Copilot 方案
+      options:
+        - 免費版 (Free)
+        - Pro(含 GitHub Education 免費升級)
+        - Pro+ / Business / Enterprise
+        - 不確定
+    validations:
+      required: false
+
+  - type: dropdown
+    id: quota-status
+    attributes:
+      label: 額度夠用嗎?
+      options:
+        - 完全夠用,沒有遇到限制
+        - 有點吃緊,但撐到最後
+        - 中途用完,改用 solutions 解答檔完成
+        - 一開始就無法使用
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: stuck-points
+    attributes:
+      label: 你在哪些地方卡住過?(可複選,沒卡住就跳過)
+      options:
+        - label: 環境安裝 / Copilot 登入
+        - label: 找不到或切不到 Agent 模式
+        - label: Step 1 建立 To-Do App
+        - label: Step 2 還原操作
+        - label: Step 3 MCP 設定或啟動
+        - label: Step 3 GitHub MCP 授權
+        - label: Step 4 prompt 檔叫不出來
+        - label: Step 4 自動開 PR
+        - label: Step 5 GitHub Pages 設定
+        - label: git push 被拒絕
+        - label: 關卡沒有自動推進
+
+  - type: dropdown
+    id: helpfulness
+    attributes:
+      label: 這堂課對你的實際幫助?
+      options:
+        - 5 — 非常有幫助,明天就會用上
+        - 4 — 有幫助
+        - 3 — 普通
+        - 2 — 幫助不大
+        - 1 — 沒有幫助
+    validations:
+      required: true
+
+  - type: dropdown
+    id: recommend
+    attributes:
+      label: 你會推薦同事來上這堂課嗎?
+      options:
+        - 一定會推薦
+        - 可能會推薦
+        - 不確定
+        - 不會推薦
+    validations:
+      required: false
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: 心得或建議
+      description: 一句話就好。哪一段最有收穫?哪一段可以改進?
+      placeholder: 看到 AI 自己開 PR 的時候最震撼,但 MCP 授權卡了一下...
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n### 五、同意事項"
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: 徽章發放
+      options:
+        - label: 我同意主辦方使用我填寫的 GitHub 帳號發放工作坊認證徽章
+          required: true
+
+  - type: checkboxes
+    id: showcase-consent
+    attributes:
+      label: 成果公開展示(選填)
+      options:
+        - label: 我同意把我的姓名/暱稱與作品連結列入公開的學員成果牆
+          required: false

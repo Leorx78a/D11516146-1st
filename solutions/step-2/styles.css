@@ -1,0 +1,274 @@
+/* ---------- 基本設定 ---------- */
+* {
+  box-sizing: border-box;
+}
+
+/* 淺色(預設)配色 */
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-alt: #f4f5f7;
+  --text: #1f2328;
+  --text-muted: #656d76;
+  --border: #d0d7de;
+  --accent: #1f883d;
+  --accent-hover: #1a7f37;
+  --danger: #cf222e;
+  --danger-soft: rgba(207, 34, 46, 0.1);
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* 深色配色:兩種情況都要涵蓋 —— */
+/* (1) 使用者沒手動選過,跟隨作業系統設定 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-alt: #0d1117;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --border: #30363d;
+    --accent: #238636;
+    --accent-hover: #2ea043;
+    --danger: #f85149;
+    --danger-soft: rgba(248, 81, 73, 0.15);
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* (2) 使用者按了切換按鈕,手動選擇優先於系統設定 */
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-alt: #0d1117;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --border: #30363d;
+  --accent: #238636;
+  --accent-hover: #2ea043;
+  --danger: #f85149;
+  --danger-soft: rgba(248, 81, 73, 0.15);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+body {
+  margin: 0;
+  padding: 24px 16px;
+  min-height: 100vh;
+  font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ---------- 版面容器(置中、RWD) ---------- */
+.app {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+/* ---------- 深色模式切換按鈕 ---------- */
+.btn-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.btn-theme:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- 新增表單 ---------- */
+.todo-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.todo-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.todo-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn-add {
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-add:hover {
+  background: var(--accent-hover);
+}
+
+/* ---------- 篩選按鈕 ---------- */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.btn-filter {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-filter:hover {
+  color: var(--text);
+}
+
+.btn-filter.is-active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- 清單 ---------- */
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.todo-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.todo-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* 已完成的樣式:刪除線 + 淡化 */
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.btn-delete {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--danger);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: var(--danger-soft);
+}
+
+/* ---------- 空狀態與頁尾 ---------- */
+.empty-state {
+  margin: 16px 0 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.app-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ---------- 無障礙:僅供螢幕閱讀器 ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 小螢幕微調 ---------- */
+@media (max-width: 420px) {
+  .app {
+    padding: 16px;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .todo-form {
+    flex-direction: column;
+  }
+}

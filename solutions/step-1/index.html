@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的待辦清單</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <h1>📝 我的待辦清單</h1>
+
+    <!-- 新增待辦的表單 -->
+    <form id="todo-form" class="todo-form" autocomplete="off">
+      <label class="sr-only" for="todo-input">待辦事項內容</label>
+      <input
+        id="todo-input"
+        class="todo-input"
+        type="text"
+        placeholder="今天要做什麼?"
+        maxlength="100"
+        required
+      >
+      <button type="submit" class="btn-add">新增</button>
+    </form>
+
+    <!-- 待辦清單本體,內容由 app.js 動態產生 -->
+    <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+
+    <!-- 清單為空時顯示的提示 -->
+    <p id="empty-state" class="empty-state" hidden>還沒有任何待辦事項,新增一個吧!</p>
+
+    <footer class="app-footer">
+      <span id="remaining-count">未完成:0 項</span>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

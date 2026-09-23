@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/mcp.json
+!.vscode/extensions.json
+.idea/
+
+# Logs / temp
+*.log
+tmp/
+.cache/
+
+# 依賴(本工作坊不需要,保險起見)
+node_modules/
+
+# Claude Code 本機設定(不隨教材發布)
+.claude/
+
+# 提案簡報(內部用,不隨教材發布給學員)
+/proposal/
+
+# 完成登記匯出結果(含學員個資,不進版控)
+/out/

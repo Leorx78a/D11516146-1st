@@ -1,0 +1,20 @@
+{
+  "name": "Copilot Workshop - Agent Mode / MCP / Agentic Workflows",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode.live-server"
+      ],
+      "settings": {
+        "chat.agent.enabled": true,
+        "files.eol": "\n"
+      }
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
+}
