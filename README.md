@@ -1,3 +1,5 @@
+[查看作品集](PORTFOLIO.md)
+
 # GitHub Copilot 實戰工作坊:Agent Mode × MCP × Agentic Workflows
 
 <img src="https://octodex.github.com/images/Professortocat_v2.png" align="right" height="200px" />
